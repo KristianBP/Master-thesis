@@ -1,5 +1,5 @@
 # master-thesis
-Code for masterthesis
+Code for masterthesis on 4G LTE/5G NSA/5G SA mobile networks.
 
 Run everything with sudo - root is needed for loopback.
 
