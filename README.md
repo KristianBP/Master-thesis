@@ -3,79 +3,134 @@ Code for masterthesis
 
 Run everything with sudo - root is needed for loopback.
 
-1. Run SCAT to listen on loopback, ensure to use correct bus and device.
-2. Run controller.py.
-3. Beneficial to also use Wireshark to analyze individual packets further. Listen on loopback. To listen on 5G packets use plugin https://github.com/fgsect/scat/blob/master/wireshark/scat.lua in wireshark.
+1. Run controller.py to launch application.
+2.
+   a. Run SCAT to listen on loopback using "sudo scat -t qc -u -a BUS:Device i 0", ensure to use correct bus and device found with lsusb.
+   b. Run SCAT using Quectel modem using "sudo scat -t qc -s /dev/ttyUSB0"
+   b2. Set up a screen using "sudo screen /dev/ttyUSB2 115200" for raw AT commands, manager script can also be used.
+          Commands for "Quectel 520NG-L" from "RG520N&RG525F&RG5x0F &RM5x0N Series AT manual", uploaded as a file in repo.
+          Deregister UE (AT+COPS=2)
+          Register UE (AT+COPS=0)
+          Prefer LTE (AT+QNWPREFCFG="mode_pref",NR5G)
+          Prefer 5G NR (AT+QNWPREFCFG="mode_pref",LTE)
+          Check cell (AT+QENG="servingcell"
+          Auto connect with SIM-card after inserting in Quectel Modem (AT+QSIMDET=1,1)
+          If there is a pin on the SIM (AT+CPIN=XXXX)
+  
+4. Beneficial to also use Wireshark to analyze individual packets further. Listen on loopback. To listen on 5G packets use plugin https://github.com/fgsect/scat/blob/master/wireshark/scat.lua in wireshark.
 
 
-Code currently captures
-"
+Code currently captures        
+
 def capture_identifiers(queue):
-    """
-    Start TShark processes for:
-      - LTE Paging
-      - LTE SIB1
-      - 5G SIB1
-      - 4G NAS-EPS (with 'and not icmp')
-      - 5G NAS-5GS (with 'and not icmp')
-    """
-    print("[DEBUG] capture_identifiers started.")
+    debug_print("capture_identifiers started.")
 
-    paging_cmd=[
-        "tshark","-i","lo",
-        "-Y","lte-rrc.PagingRecord_element and not icmp",
-        "-T","fields",
-        "-e","frame.number",
-        "-e","lte-rrc.m_TMSI",
-        "-e","lte-rrc.IMSI_Digit",
-        "-E","separator=,", "-l","-Q"
+    gsm_a_imeisv_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "gsm_a.imeisv and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "gsm_a.imeisv",
+        "-E", "separator=,", "-l", "-Q"
     ]
-    sib_cmd=[
-        "tshark","-i","lo",
-        "-Y","lte-rrc.bCCH_DL_SCH_Message.message and not icmp",
-        "-T","fields",
-        "-e","frame.number",
-        "-e","lte-rrc.MCC_MNC_Digit",
-        "-e","lte-rrc.trackingAreaCode",
-        "-e","lte-rrc.cellIdentity",
-        "-E","separator=,", "-l","-Q"
+    paging_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "lte-rrc.PagingRecord_element and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "lte-rrc.m_TMSI",
+        "-e", "lte-rrc.IMSI_Digit",
+        "-E", "separator=,", "-l", "-Q"
     ]
-    sib_5g_cmd=[
-        "tshark","-i","lo",
-        "-Y","nr-rrc.bCCH_DL_SCH_Message.message and not icmp",
-        "-T","fields",
-        "-e","frame.number",
-        "-e","nr-rrc.trackingAreaCode",
-        "-e","nr-rrc.cellIdentity",
-        "-E","separator=,", "-l","-Q"
+    sib_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "lte-rrc.bCCH_DL_SCH_Message.message and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "lte-rrc.MCC_MNC_Digit",
+        "-e", "lte-rrc.trackingAreaCode",
+        "-e", "lte-rrc.cellIdentity",
+        "-E", "separator=,", "-l", "-Q"
     ]
-    nas_eps_cmd=[
-        "tshark","-i","lo",
-        "-Y","nas-eps and not icmp",
-        "-T","fields",
-        "-e","nas-eps.emm.m_tmsi",
-        "-e","e212.imsi",
-        "-e","e212.assoc.imsi",
-        "-e","nas-eps.emm.mme_grp_id",
-        "-e","nas-eps.emm.mme_code",
-        "-e","nas-eps.nas_msg_emm_type",
-        "-E","separator=\t","-l","-Q"
+    sib5g_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "nr-rrc.bCCH_DL_SCH_Message.message and not icmp",
+        "-T", "fields",
+        "-e", "nr-rrc.MCC_MNC_Digit",
+        "-e", "nr-rrc.trackingAreaCode",
+        "-e", "nr-rrc.cellIdentity",
+        "-E", "separator=,", "-l", "-Q"
     ]
-    nas_5gs_cmd=[
-        "tshark","-i","lo",
-        "-Y","nas-5gs and not icmp",
-        "-T","fields",
-        "-e","frame.number",
-        "-e","nas-5gs.5g_tmsi",
-        "-e","nas-5gs.mm.suci.msin",
-        "-e","nas-5gs.mm.imeisv",
-        "-e","nas-5gs.mm.message_type",
-        "-e","nas-5gs.mm.5gs_reg_type",
-        "-E","separator=\t","-l","-Q"
+    nas_eps_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "nas-eps and not icmp",
+        "-T", "fields",
+        "-e", "nas-eps.emm.m_tmsi",
+        "-e", "e212.imsi",
+        "-e", "e212.assoc.imsi",
+        "-e", "nas-eps.emm.mme_grp_id",
+        "-e", "nas-eps.emm.mme_code",
+        "-e", "nas-eps.nas_msg_emm_type",
+        "-E", "separator=\t", "-l", "-Q"
     ]
-"
+    nas_5gs_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "(nas-5gs or nr-rrc.ng_5G_S_TMSI_Part1 or nr-rrc.ng_5G_S_TMSI_Part2 or nr-rrc.randomValue) and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "nas-5gs.5g_tmsi",
+        "-e", "nas-5gs.mm.suci.msin",
+        "-e", "nas-5gs.mm.imeisv",
+        "-e", "nas-5gs.mm.message_type",
+        "-e", "nas-5gs.mm.5gs_reg_type",
+        "-e", "nr-rrc.ng_5G_S_TMSI_Part1",
+        "-e", "nr-rrc.ng_5G_S_TMSI_Part2",
+        "-e", "nr-rrc.randomValue",
+        "-E", "separator=\t", "-l", "-Q"
+    ]
+    sa_paging_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "nr-rrc.pagingRecordList and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "nr-rrc.ng_5G_S_TMSI",
+        "-E", "separator=,", "-l", "-Q"
+    ]
+    sib5g_sa_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "nr-rrc and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "nr-rrc.MCC_MNC_Digit",
+        "-e", "nr-rrc.trackingAreaCode",
+        "-e", "nr-rrc.cellIdentity",
+        "-E", "separator=,", "-l", "-Q"
+    ]
+    rrc_newueid_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "lte-rrc.newUE_Identity and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "lte-rrc.newUE_Identity",
+        "-E", "separator=,", "-l", "-Q"
+    ]
+    # EXACT command that works for RRCConnectionRequest:
+    rrc_connreq_merged_cmd = [
+        "tshark", "-i", "lo",
+        "-Y", "lte-rrc.rrcConnectionRequest_element and not icmp",
+        "-T", "fields",
+        "-e", "frame.number",
+        "-e", "lte-rrc.randomValue",
+        "-e", "lte-rrc.mmec",
+        "-e", "lte-rrc.m_TMSI",
+        "-E", "separator=,", "-l"
+    ]
 
-Pagings, SIBs, Attach requests, deattaches, rejects, registration, deregistration, identity responses, mme codes.
 
-GUI currently tracks count, lifespan, connected UE changes.
+Pagings, SIBs, Attach requests, deattaches, accepts, registration, deregistration, identity responses, mme codes, mme group ids, cell identities, TACs, MNC, MCC and more...
+
+Details tab currently tracks count, lifespan, CID, SIB, TAC, etc. Every table header can be sorted from high->low or low->high.
+As SIB and cell information is not sent in the broadcasted paging messages. This information is taken from the connected ue.
+
 Would advise to use show top 50 for ID's if tracking is being done - as the application may lag.
+Running the code between two network cells or TA can also cause lag as this generates a lot of communication.
