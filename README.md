@@ -10,7 +10,8 @@ Python3 + kivy framework downloaded, everything run in Linux Terminal - SCAT req
    b. Run SCAT using the Quectel modem: ```scat -t qc -s /dev/ttyUSB0 ``` 
    b2. Set up a screen for raw AT commands: ```screen /dev/ttyUSB2 115200 ``` 
    #### Quectel 520NG-L AT Commands (for RG520N, RG525F, RG5x0F, RM5x0N series): - Manual uploaded in repo.
-   ```text 
+   
+   ```
    AT+COPS=2 # Deregister UE 
    AT+COPS=0 # Register 
    UE AT+QNWPREFCFG="mode_pref",NR5G # Prefer LTE 
