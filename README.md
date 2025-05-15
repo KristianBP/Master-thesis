@@ -4,18 +4,22 @@ Code for masterthesis
 Run everything with sudo - root is needed for loopback.
 
 1. Run controller.py to launch application.
-2.
-   a. Run SCAT to listen on loopback using "sudo scat -t qc -u -a BUS:Device i 0", ensure to use correct bus and device found with lsusb.
-   b. Run SCAT using Quectel modem using "sudo scat -t qc -s /dev/ttyUSB0"
-   b2. Set up a screen using "sudo screen /dev/ttyUSB2 115200" for raw AT commands, manager script can also be used.
-          Commands for "Quectel 520NG-L" from "RG520N&RG525F&RG5x0F &RM5x0N Series AT manual", uploaded as a file in repo.
-          Deregister UE (AT+COPS=2)
-          Register UE (AT+COPS=0)
-          Prefer LTE (AT+QNWPREFCFG="mode_pref",NR5G)
-          Prefer 5G NR (AT+QNWPREFCFG="mode_pref",LTE)
-          Check cell (AT+QENG="servingcell"
-          Auto connect with SIM-card after inserting in Quectel Modem (AT+QSIMDET=1,1)
-          If there is a pin on the SIM (AT+CPIN=XXXX)
+<pre> 2. 
+   a. Run SCAT to listen on loopback: ```bash sudo scat -t qc -u -a BUS:Device i 0 ``` *(Make sure to replace `BUS:Device` with the correct values found via `lsusb`)* 
+   b. Run SCAT using the Quectel modem: ```bash sudo scat -t qc -s /dev/ttyUSB0 ``` 
+   b2. Set up a screen for raw AT commands: ```bash sudo screen /dev/ttyUSB2 115200 ``` 
+   #### Quectel 520NG-L AT Commands (for RG520N, RG525F, RG5x0F, RM5x0N series): - Manual uploaded in repo.
+   ```text 
+   AT+COPS=2 # Deregister UE 
+   AT+COPS=0 # Register 
+   UE AT+QNWPREFCFG="mode_pref",NR5G # Prefer LTE 
+   AT+QNWPREFCFG="mode_pref",LTE # Prefer 5G NR 
+   AT+QENG="servingcell" # Check cell info 
+   AT+QSIMDET=1,1 # Auto connect SIM after insert 
+   AT+CPIN=XXXX # 
+   Enter SIM PIN (if required) 
+   ``` 
+</pre>
   
 4. Beneficial to also use Wireshark to analyze individual packets further. Listen on loopback. To listen on 5G packets use plugin https://github.com/fgsect/scat/blob/master/wireshark/scat.lua in wireshark.
 
