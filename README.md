@@ -28,110 +28,111 @@ Python3 + kivy framework downloaded, everything run in Linux Terminal - SCAT req
 
 Code currently captures        
 
-def capture_identifiers(queue):
-    debug_print("capture_identifiers started.")
-
-    gsm_a_imeisv_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "gsm_a.imeisv and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "gsm_a.imeisv",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    paging_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "lte-rrc.PagingRecord_element and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "lte-rrc.m_TMSI",
-        "-e", "lte-rrc.IMSI_Digit",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    sib_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "lte-rrc.bCCH_DL_SCH_Message.message and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "lte-rrc.MCC_MNC_Digit",
-        "-e", "lte-rrc.trackingAreaCode",
-        "-e", "lte-rrc.cellIdentity",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    sib5g_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "nr-rrc.bCCH_DL_SCH_Message.message and not icmp",
-        "-T", "fields",
-        "-e", "nr-rrc.MCC_MNC_Digit",
-        "-e", "nr-rrc.trackingAreaCode",
-        "-e", "nr-rrc.cellIdentity",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    nas_eps_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "nas-eps and not icmp",
-        "-T", "fields",
-        "-e", "nas-eps.emm.m_tmsi",
-        "-e", "e212.imsi",
-        "-e", "e212.assoc.imsi",
-        "-e", "nas-eps.emm.mme_grp_id",
-        "-e", "nas-eps.emm.mme_code",
-        "-e", "nas-eps.nas_msg_emm_type",
-        "-E", "separator=\t", "-l", "-Q"
-    ]
-    nas_5gs_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "(nas-5gs or nr-rrc.ng_5G_S_TMSI_Part1 or nr-rrc.ng_5G_S_TMSI_Part2 or nr-rrc.randomValue) and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "nas-5gs.5g_tmsi",
-        "-e", "nas-5gs.mm.suci.msin",
-        "-e", "nas-5gs.mm.imeisv",
-        "-e", "nas-5gs.mm.message_type",
-        "-e", "nas-5gs.mm.5gs_reg_type",
-        "-e", "nr-rrc.ng_5G_S_TMSI_Part1",
-        "-e", "nr-rrc.ng_5G_S_TMSI_Part2",
-        "-e", "nr-rrc.randomValue",
-        "-E", "separator=\t", "-l", "-Q"
-    ]
-    sa_paging_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "nr-rrc.pagingRecordList and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "nr-rrc.ng_5G_S_TMSI",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    sib5g_sa_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "nr-rrc and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "nr-rrc.MCC_MNC_Digit",
-        "-e", "nr-rrc.trackingAreaCode",
-        "-e", "nr-rrc.cellIdentity",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    rrc_newueid_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "lte-rrc.newUE_Identity and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "lte-rrc.newUE_Identity",
-        "-E", "separator=,", "-l", "-Q"
-    ]
-    # EXACT command that works for RRCConnectionRequest:
-    rrc_connreq_merged_cmd = [
-        "tshark", "-i", "lo",
-        "-Y", "lte-rrc.rrcConnectionRequest_element and not icmp",
-        "-T", "fields",
-        "-e", "frame.number",
-        "-e", "lte-rrc.randomValue",
-        "-e", "lte-rrc.mmec",
-        "-e", "lte-rrc.m_TMSI",
-        "-E", "separator=,", "-l"
-    ]
-
+<pre>
+   def capture_identifiers(queue):
+       debug_print("capture_identifiers started.")
+   
+       gsm_a_imeisv_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "gsm_a.imeisv and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "gsm_a.imeisv",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       paging_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "lte-rrc.PagingRecord_element and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "lte-rrc.m_TMSI",
+           "-e", "lte-rrc.IMSI_Digit",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       sib_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "lte-rrc.bCCH_DL_SCH_Message.message and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "lte-rrc.MCC_MNC_Digit",
+           "-e", "lte-rrc.trackingAreaCode",
+           "-e", "lte-rrc.cellIdentity",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       sib5g_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "nr-rrc.bCCH_DL_SCH_Message.message and not icmp",
+           "-T", "fields",
+           "-e", "nr-rrc.MCC_MNC_Digit",
+           "-e", "nr-rrc.trackingAreaCode",
+           "-e", "nr-rrc.cellIdentity",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       nas_eps_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "nas-eps and not icmp",
+           "-T", "fields",
+           "-e", "nas-eps.emm.m_tmsi",
+           "-e", "e212.imsi",
+           "-e", "e212.assoc.imsi",
+           "-e", "nas-eps.emm.mme_grp_id",
+           "-e", "nas-eps.emm.mme_code",
+           "-e", "nas-eps.nas_msg_emm_type",
+           "-E", "separator=\t", "-l", "-Q"
+       ]
+       nas_5gs_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "(nas-5gs or nr-rrc.ng_5G_S_TMSI_Part1 or nr-rrc.ng_5G_S_TMSI_Part2 or nr-rrc.randomValue) and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "nas-5gs.5g_tmsi",
+           "-e", "nas-5gs.mm.suci.msin",
+           "-e", "nas-5gs.mm.imeisv",
+           "-e", "nas-5gs.mm.message_type",
+           "-e", "nas-5gs.mm.5gs_reg_type",
+           "-e", "nr-rrc.ng_5G_S_TMSI_Part1",
+           "-e", "nr-rrc.ng_5G_S_TMSI_Part2",
+           "-e", "nr-rrc.randomValue",
+           "-E", "separator=\t", "-l", "-Q"
+       ]
+       sa_paging_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "nr-rrc.pagingRecordList and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "nr-rrc.ng_5G_S_TMSI",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       sib5g_sa_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "nr-rrc and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "nr-rrc.MCC_MNC_Digit",
+           "-e", "nr-rrc.trackingAreaCode",
+           "-e", "nr-rrc.cellIdentity",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       rrc_newueid_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "lte-rrc.newUE_Identity and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "lte-rrc.newUE_Identity",
+           "-E", "separator=,", "-l", "-Q"
+       ]
+       # EXACT command that works for RRCConnectionRequest:
+       rrc_connreq_merged_cmd = [
+           "tshark", "-i", "lo",
+           "-Y", "lte-rrc.rrcConnectionRequest_element and not icmp",
+           "-T", "fields",
+           "-e", "frame.number",
+           "-e", "lte-rrc.randomValue",
+           "-e", "lte-rrc.mmec",
+           "-e", "lte-rrc.m_TMSI",
+           "-E", "separator=,", "-l"
+       ]
+</pre>
 
 Pagings, SIBs, Attach requests, deattaches, accepts, registration, deregistration, identity responses, mme codes, mme group ids, cell identities, TACs, MNC, MCC and more...
 
