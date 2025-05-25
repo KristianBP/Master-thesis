@@ -6,7 +6,7 @@ Python3 + kivy framework downloaded, everything run in Linux Terminal - SCAT req
 
 1. Run controller.py to launch application.
 <pre> 2. 
-   a. Run SCAT to listen on loopback: ```scat -t qc -u -a BUS:Device i 0 ``` *(Make sure to replace `BUS:Device` with the correct values found via `lsusb`)* 
+   a. Run SCAT to listen on loopback: ```scat -t qc -u -a BUS:Device -i 0 ``` *(Make sure to replace `BUS:Device` with the correct values found via `lsusb`)* 
    b. Run SCAT using the Quectel modem: ```scat -t qc -s /dev/ttyUSB0 ``` 
    b2. Set up a screen for raw AT commands: ```screen /dev/ttyUSB2 115200 ``` 
    #### Quectel 520NG-L AT Commands (for RG520N, RG525F, RG5x0F, RM5x0N series): - Manual uploaded in repo.
